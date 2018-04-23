@@ -1,0 +1,18 @@
+
+# packages
+*.egg
+*.egg-info
+build
+eggs
+__pycache__
+.cache
+
+# setuptools
+dist
+
+# mac
+.DS_STORE
+
+# env
+venv/
+env/
