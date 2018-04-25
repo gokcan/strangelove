@@ -1,0 +1,4 @@
+global-include *.csv
+include *.md
+global-include *.ini
+global-exclude *.pyc
