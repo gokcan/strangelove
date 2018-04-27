@@ -10,6 +10,7 @@ _config = configparser.ConfigParser()
 _config.read('{}/conf/config.ini'.format(__LOCATION__))
 
 API_KEY = _config['tmdb']['api_key']
+API_VERSION = _config['tmdb']['api_version']
 REQUEST_URL = _config['tmdb']['request_url']
 
 # STATIC ROOT
