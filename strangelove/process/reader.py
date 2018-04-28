@@ -29,7 +29,7 @@ class FileType(object):
     }
 
     """ Immutable Representation of data collected from csv files. """
-    _VALUES_TO_TUPPLE = {
+    _VALUES_TO_TUPLE = {
         0: namedtuple('Movie', ('movieId', 'title', 'genres')),
         1: namedtuple('Rating', ('userId', 'movieId', 'rating', 'timestamp')),
         2: namedtuple('Link', ('movieId', 'imdbId', 'tmdbId')),
@@ -101,7 +101,7 @@ class Iterator(BaseIterator):
 
 class Parser(object):
     def __init__(self, file_type: int):
-        self.tuple = FileType._VALUES_TO_TUPPLE[file_type]
+        self.tuple = FileType._VALUES_TO_TUPLE[file_type]
 
     def parse(self, line) -> namedtuple:
         return self.tuple(*line)
