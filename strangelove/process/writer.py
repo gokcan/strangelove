@@ -47,6 +47,7 @@ class Writer(object):
             assert key in self.fieldnames
 
         self.writer.writerow(row)
+        self._file.flush()
 
     def close(self):
         if self._file is not None:
