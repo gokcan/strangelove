@@ -9,12 +9,17 @@ logger = logging.getLogger(__name__)
 _Spec = (
     'movie_id',
     'title',
+    'release_date',
+    'runtime',
+    'budget',
     'genres',
     'overview',
+    'tagline',
     'popularity',
     'revenue',
-    'vote_average',
-    'vote_count',
+    'director',
+    'cast',
+    'keywords',
 )
 
 

@@ -33,15 +33,34 @@ def main():
     writer = Writer(filepath=filepath)
     for movie, link in zip(Iterator(), Iterator(file_type=FileType.LINK)):
         res = fetcher.fetch(link.tmdbId)
+        director, cast, keywords = ([] for i in range(3))
+        credits = res['credits']
+
+        for person in credits['crew']:
+            if person['job'] == 'Director':
+                director.append(person['name'])
+
+        for person in credits['cast']:
+            if person['order'] < 5:
+                cast.append(person['name'])
+
+        for keyword in res['keywords']['keywords']:
+            keywords.append(keyword['name'])
+        
         out = {
             'movie_id': movie.movieId,
             'title': movie.title,
             'genres': movie.genres,
+            'release_date': res.get('release_date', ''),
+            'runtime': res.get('runtime', ''),
+            'budget': res.get('budget', ''),
             'overview': res.get('overview', ''),
+            'tagline': res.get('tagline', ''),
             'popularity': res.get('popularity', ''),
             'revenue': res.get('revenue', ''),
-            'vote_average': res.get('vote_average', ''),
-            'vote_count': res.get('vote_count', '')
+            'director': '|'.join(director),
+            'cast': '|'.join(cast),
+            'keywords': '|'.join(keywords),
         }
 
         writer.write(out)
