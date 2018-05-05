@@ -50,7 +50,7 @@ class Writer(object):
     def write(self, row: dict) -> None:
         for key, _ in row.items():
             assert key in self.fieldnames
-
+        logger.info('write {} into csv'.format(row))
         self.writer.writerow(row)
         self._file.flush()
 
