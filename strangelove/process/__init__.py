@@ -1,1 +1,1 @@
-__all__ = ['reader', 'fetch', 'writer']
+__all__ = ['reader', 'fetch', 'writer', 'predict', 'analysis']
