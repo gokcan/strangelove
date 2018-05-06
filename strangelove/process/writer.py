@@ -7,9 +7,9 @@ import os
 logger = logging.getLogger(__name__)
 
 _Spec = (
-    'movie_id',
+    'movieId',
     'title',
-    'release_date',
+    'releaseDate',
     'runtime',
     'budget',
     'genres',

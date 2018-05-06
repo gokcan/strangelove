@@ -34,36 +34,43 @@ def main():
     for movie, link in zip(Iterator(), Iterator(file_type=FileType.LINK)):
         res = fetcher.fetch(link.tmdbId)
         director, cast, keywords = ([] for i in range(3))
-        credits = res['credits']
 
-        for person in credits['crew']:
-            if person['job'] == 'Director':
-                director.append(person['name'])
+        if 'status_code' in res:
+            value = res['status_code']
+            print("Status Code: {}, Movie ID: {}".format(value,link.movieId))
 
-        for person in credits['cast']:
-            if person['order'] < 5:
-                cast.append(person['name'])
+        else:  # status_code is not set for successful read operations.
+            if 'credits' in res:
+                credits = res['credits']
 
-        for keyword in res['keywords']['keywords']:
-            keywords.append(keyword['name'])
-        
-        out = {
-            'movie_id': movie.movieId,
-            'title': movie.title,
-            'genres': movie.genres,
-            'release_date': res.get('release_date', ''),
-            'runtime': res.get('runtime', ''),
-            'budget': res.get('budget', ''),
-            'overview': res.get('overview', ''),
-            'tagline': res.get('tagline', ''),
-            'popularity': res.get('popularity', ''),
-            'revenue': res.get('revenue', ''),
-            'director': '|'.join(director),
-            'cast': '|'.join(cast),
-            'keywords': '|'.join(keywords),
-        }
+                for person in credits['crew']:
+                    if person['job'] == 'Director':
+                        director.append(person['name'])
 
-        writer.write(out)
+                for person in credits['cast']:
+                    if person['order'] < 5:
+                        cast.append(person['name'])
+
+            for keyword in res['keywords']['keywords']:
+                keywords.append(keyword['name'])
+            
+            out = {
+                'movieId': movie.movieId,
+                'title': movie.title,
+                'genres': movie.genres,
+                'releaseDate': res.get('release_date', ''),
+                'runtime': res.get('runtime', ''),
+                'budget': res.get('budget', ''),
+                'overview': res.get('overview', ''),
+                'tagline': res.get('tagline', ''),
+                'popularity': res.get('popularity', ''),
+                'revenue': res.get('revenue', ''),
+                'director': '|'.join(director),
+                'cast': '|'.join(cast),
+                'keywords': '|'.join(keywords),
+            }
+
+            writer.write(out)
 
 
 if __name__ == '__main__':
