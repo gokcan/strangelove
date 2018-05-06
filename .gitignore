@@ -25,3 +25,7 @@ env/
 
 # csv out
 strangelove/dataset/movielens/100k/out
+
+# npz
+
+*.npz
