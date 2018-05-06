@@ -24,7 +24,8 @@ class CollaborativeRecommender(base.Recommender):
         pass
     def pearsonSimilarity(ratings, x, y ):
         #save movies that both users have been rated
-        movieDict={} for movie in ratings[x]:
+        movieDict={}
+        for movie in ratings[x]:
             if movie in ratings[y]:
                 movieDict[movie] = 1
                 N = len(movieDict)
