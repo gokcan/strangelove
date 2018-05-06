@@ -1,5 +1,6 @@
 from strangelove.engine import base
 from strangelove.process.reader import Iterator, FileType
+import math
 
 class CollaborativeRecommender(base.Recommender):
     """
@@ -44,7 +45,7 @@ class CollaborativeRecommender(base.Recommender):
         numerator = (N*Exy - Ex*Ey)
         denom1 = Ex2 - pow(Ex,2)/N
         denom2 = Ey2 - pow(Ey,2)/N
-        denominator = sqrt(denom1 * denom2)
+        denominator = math.sqrt(denom1 * denom2)
         if denominator == 0: return -2 #divide by zero exception since not sure if it automatically gives error
         r = numerator / denominator
         return r
