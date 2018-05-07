@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix, csc_matrix
 from strangelove.process.reader import Iterator, FileType
 from strangelove import STATIC_ROOT
+from strangelove.process.mapper import Mapper
 
 logger = logging.getLogger(__name__)
 
@@ -14,14 +15,14 @@ class MatrixUtility(object):
     _MAX_MOVIE_ID = 9066
 
     def __init__(self):
-        self._map = None
-        self._map_origin = None
+        self._movie_map = None
+        self._movie_map_origin = None
 
     def get_movie_id(self, id: int):
-        return self._map.get(id, None)
+        return self._movie_map.get(id, None)
     
     def get_id(self, id: int):
-        return self._map_origin.get(id, None)
+        return self._movie_map_origin.get(id, None)
 
     def build_utility_csr(self):
         rate_list = list(Iterator(file_type=FileType.RATING))
@@ -30,9 +31,10 @@ class MatrixUtility(object):
         for rate in rate_list:
             row.append(float(rate.userId))
             data.append(float(rate.rating))
-            col.append(float(rate.movieId))
+            col.append(rate.movieId)
 
-        col = self._map_movie_ids(col)
+    
+        self._movie_map, self._movie_map_origin, col = Mapper.to_numeric_integer(col)
 
         csr = csr_matrix((data, (row, col)), shape=(self._MAX_USER_ID, self._MAX_MOVIE_ID))
         csr.eliminate_zeros()
@@ -62,20 +64,6 @@ class MatrixUtility(object):
                  indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
         np.savez('norm-matrix-csc', data=csc.data,
                  indices=csc.indices, indptr=csc.indptr, shape=csc.shape)
-
-
-    def _map_movie_ids(self, col):
-        """Maps movie ids to incremental numeric ids"""
-        map_csr = []
-
-        set_csr = set(col)
-        for index, movie_id in enumerate(set_csr):
-            map_csr.append((int(movie_id), index))
-
-        # cache ids into map
-        self._map =  dict((v, k) for k, v in map_csr)
-        self._map_origin = dict(map_csr)
-        return [float(self._map_origin[id]) for id in col]
 
 
 util = MatrixUtility()
