@@ -1,18 +1,56 @@
 from strangelove.engine import base
-from strangelove.process.reader import Iterator, FileType
+import strangelove.process.reader
+from strangelove.process.util import MatrixUtility
+from strangelove.utility.cosine_similarity import CosineSimilarity
+from strangelove.utility.tfidf_similarity import TFIDFSimilarity
 import math
 
-class CollaborativeRecommender(base.Recommender):
-    """
-      Collabrative Recommender for movies.
+from scipy.sparse import csr_matrix, csc_matrix, coo_matrix
+import numpy as np
+from numpy import bincount, log, log1p, sqrt
 
-      :type disabled_metrics: list
-      :param disabled_metrics: Excludes some metrics for recommendation
+class ItemBasedRecommender(base.Recommender):
     """
-    def __init__(self, disabled_metrics: list=None):
-        super().__init__(disabled_metrics)
+      Item-Item Recommender for movies.
+    """
+    def __init__(self, utility=MatrixUtility):
+        self.utility = utility()
+        self.csr = None
+        self.similary_matrix = None
 
-    def recommend(self, user_id: int, size: int=10) -> list:
+    def load_csr_matrix(self,  matrix: str='matrix-csr.npz'):
+        "Loads sparse csv"
+        self.utility.build_utility_csr()
+
+        npz = np.load(matrix)
+        self.csr = csr_matrix((npz["data"], npz["indices"],
+                                    npz["indptr"]), shape=npz["shape"])
+
+    def similar_items(self, item_id=1029, size=10):
+        if size >= self.similarity_matrix.shape[0]:
+            return []
+        return sorted(
+            list(iter_np(self.similarity_matrix, item_id)), key=lambda x: -x[1])[:size]
+    
+    def preprocess(self, model_name='cosine'):
+        """Trains the dataset and creates similarity matrix according to similarity model.
+        :type model_name: str
+        :param model_name: Applied model name.
+        """
+        if model_name == 'cosine':
+            model = CosineSimilarity(self.csr)
+        elif model_name == 'svd':
+            model = MatrixFactorization(self.csr)
+        elif model_name == 'tfidf':
+            model = TFIDFSimilarity(self.csr)
+        else:
+            raise Exception("Unsupported similarity model")
+        
+        # builds similarity matrix based on similarity model
+        similarity = model.train()
+        self.similarity_matrix = csr_matrix(similarity)
+
+    def recommend(self, user_id, size: int=10, similarity_constraint=0.6) -> list:
         """Recommends movie.
         :type user_id: int
         :param id: ID of user.
@@ -23,29 +61,16 @@ class CollaborativeRecommender(base.Recommender):
         returns lists of recommended movies.
         """
         pass
-    def pearsonSimilarity(ratings, x, y ):
-        #save movies that both users have been rated
-        movieDict={}
-        for movie in ratings[x]:
-            if movie in ratings[y]:
-                movieDict[movie] = 1
-                N = len(movieDict)
-        #could not find pair, then return
-        if N == 0:
-            return -1
-        # sum of scores
-        Ex = sum([ratings[x][movie] for movie in movieDict])
-        Ey = sum([ratings[y][movie] for movie in movieDict])
-        # sum of squared scores
-        Ex2 = sum([pow(ratings[x][movie],2) for movie in movieDict])
-        Ey2 = sum([pow(ratings[y][movie],2) for movie in movieDict])
-        #sum of the products of paired scores
-        Exy = sum([ratings[x][movie] * ratings[y][movie] for movie in movieDict])
-        #pearson formula =
-        numerator = (N*Exy - Ex*Ey)
-        denom1 = Ex2 - pow(Ex,2)/N
-        denom2 = Ey2 - pow(Ey,2)/N
-        denominator = math.sqrt(denom1 * denom2)
-        if denominator == 0: return -2 #divide by zero exception since not sure if it automatically gives error
-        r = numerator / denominator
-        return r
+
+        
+def iter_np(m, row):
+    for index in range(m.indptr[row], m.indptr[row+1]):
+        yield m.indices[index], m.data[index]
+
+
+cf = ItemBasedRecommender()
+cf.load_csr_matrix()
+cf.preprocess()
+print(cf.similar_items())
+cf.preprocess(model_name='tfidf')
+print(cf.similar_items())

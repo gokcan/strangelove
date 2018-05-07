@@ -36,15 +36,15 @@ class MatrixFactorization(object):
         self.beta = beta
         self.size = size
 
-    def train(self) -> np.ndarray:
+    def train(self):
         """
         Produces a prediction based on SGD. 
 
-        returns np.ndarray
+        returns (full_matrix: np.ndarray, item_factors: np.ndarray, user_factors: np.ndarray)
 
         example:
             mf = MatrixFactorization(R, number_latent_dimensions=100, alpha=0.1, beta=0.04, size=20)
-            result = mf.train()
+            matrix, item_factors, user_factors = mf.train()
 
         """
         # randomly initialize user and item factors
@@ -68,7 +68,7 @@ class MatrixFactorization(object):
         for _ in range(self.size):
             np.random.shuffle(samples)
             self._sgd(samples)
-        
+
         return self.full_matrix()
 
     def _predict_item(self, i, j) -> float:

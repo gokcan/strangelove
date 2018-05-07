@@ -2,12 +2,26 @@
 class Recommender(object):
     """
       Base Recommender for movies. 
-
-      :type disabled_metrics: list
-      :param disabled_metrics: Excludes some metrics for recommendation
     """
-    def __init__(self, disabled_metrics: list=None):
-        self.disabled = disabled_metrics
+    def __init__(self):
+        pass
+    
+    def load_csv(self, matrix: str):
+        """Preprocess part of recommendation.
+        :type matrix: str
+        :param matrix: npz file
+
+        """
+        pass
+
+    
+    def preprocess(self):
+        """Preprocess part of recommendation.
+        :type matrix: str
+        :param matrix: npz file
+
+        """
+        pass
 
     def recommend(self, id: int, size: int=10) -> list:
         """Recommends movie.
@@ -19,13 +33,3 @@ class Recommender(object):
 
         """
         pass
-    
-    # TODO
-    def export(self, type='txt') -> None:
-        """ Exports recommendations to the file.
-        :type type: str
-        :param type: type of file{csv, txt, sqlite, etc.}
-
-        """
-
-        pass 
