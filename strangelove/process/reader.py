@@ -7,22 +7,43 @@ import strangelove
 
 logger = logging.getLogger(__name__)
 
+# reference metadata
+_META_DATA = namedtuple(
+    'Metadata',
+    (
+        'movieId', 
+        'title', 
+        'releaseDate', 
+        'runtime', 
+        'budget', 
+        'genres',
+        'overview', 
+        'tagline', 
+        'popularity', 
+        'revenue', 
+        'director', 
+        'cast', 
+        'keywords',
+    ),
+)
 
 class FileType(object):
     MOVIE = 0
     RATING = 1
     LINK = 2
     TAG = 3
-    METADATA = 4
-    AGG_RATINGS = 5
+    AGG_RATINGS = 4
+    METADATA = 5
+    META = 6
 
     _VALUES_TO_NAMES = {
         0: 'MOVIE',
         1: 'RATING',
         2: 'LINK',
         3: 'TAG',
-        4: 'METADATA',
-        5: 'AGG_RATINGS'
+        4: 'AGG_RATINGS',
+        5: 'METADATA',
+        6: 'META',
     }
 
     _NAMES_TO_VALUES = {
@@ -30,8 +51,9 @@ class FileType(object):
         'USER': 1,
         'LINK': 2,
         'TAG': 3,
-        'METADATA': 4,
-        'AGG_RATINGS': 5,
+        'AGG_RATINGS': 4,
+        'METADATA': 5,
+        'META': 6,
     }
 
     """ Immutable Representation of data collected from csv files. """
@@ -40,10 +62,9 @@ class FileType(object):
         1: namedtuple('Rating', ('userId', 'movieId', 'rating', 'timestamp')),
         2: namedtuple('Link', ('movieId', 'imdbId', 'tmdbId')),
         3: namedtuple('Tag', ('userId', 'movieId', 'tag', 'timestamp')),
-        4: namedtuple('Metadata',
-                      ('movieId', 'title', 'releaseDate', 'runtime', 'budget', 'genres',
-                       'overview', 'tagline', 'popularity', 'revenue', 'director', 'cast', 'keywords')),
-        5: namedtuple('AggRatings', ('movieId', 'vote_average', 'vote_count')),
+        4: namedtuple('AggRatings', ('movieId', 'vote_average', 'vote_count')),
+        5: _META_DATA,
+        6: _META_DATA,
     }
 
     _VALUES_TO_PATH = {
@@ -51,8 +72,9 @@ class FileType(object):
         1: '{}/ratings.csv'.format(strangelove.STATIC_ROOT),
         2: '{}/links.csv'.format(strangelove.STATIC_ROOT),
         3: '{}/tags.csv'.format(strangelove.STATIC_ROOT),
-        4: '{}/metadata.csv'.format(strangelove.STATIC_ROOT),
-        5: '{}/agg_movie_ratings.csv'.format(strangelove.STATIC_ROOT),
+        4: '{}/agg_movie_ratings.csv'.format(strangelove.STATIC_ROOT),
+        5: '{}/metadata.csv'.format(strangelove.STATIC_ROOT),
+        6: '{}/meta.csv'.format(strangelove.STATIC_ROOT),
     }
 
 

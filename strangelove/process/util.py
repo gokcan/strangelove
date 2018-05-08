@@ -13,6 +13,9 @@ class MatrixUtility(object):
     """ Builder """
     _MAX_USER_ID = 672
     _MAX_MOVIE_ID = 9066
+    _MAX_DIRECTOR_ID = 3978
+    _MAX_CAST_ID = 16838
+    _MAX_GENRE_ID = 20
 
     def __init__(self):
         self._movie_map = None
@@ -31,9 +34,8 @@ class MatrixUtility(object):
         for rate in rate_list:
             row.append(float(rate.userId))
             data.append(float(rate.rating))
-            col.append(rate.movieId)
+            col.append(int(rate.movieId))
 
-    
         self._movie_map, self._movie_map_origin, col = Mapper.to_numeric_integer(col)
 
         csr = csr_matrix((data, (row, col)), shape=(self._MAX_USER_ID, self._MAX_MOVIE_ID))
