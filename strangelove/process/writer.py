@@ -25,8 +25,8 @@ _Spec = (
 
 class Writer(object):
     # TODO(sonmezonur): Default path
-    def __init__(self, filepath: str):
-        self.fieldnames = _Spec
+    def __init__(self, filepath: str, fieldnames=_Spec):
+        self.fieldnames = fieldnames
         self.filepath = filepath
         self._file = None
         self._writer = None

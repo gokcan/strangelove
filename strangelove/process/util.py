@@ -12,41 +12,41 @@ logger = logging.getLogger(__name__)
 class MatrixUtility(object):
     """ Builder """
     _MAX_USER_ID = 672
-    _MAX_MOVIE_ID = 9066
+    _MAX_MOVIE_ID = 164980
     _MAX_DIRECTOR_ID = 3978
     _MAX_CAST_ID = 16838
     _MAX_GENRE_ID = 20
 
     def __init__(self):
-        self._movie_map = None
-        self._movie_map_origin = None
+        pass
 
-    def get_movie_id(self, id: int):
-        return self._movie_map.get(id, None)
-    
-    def get_id(self, id: int):
-        return self._movie_map_origin.get(id, None)
-
-    def build_utility_csr(self):
+    def build_user_rating_csr(self):
         rate_list = list(Iterator(file_type=FileType.RATING))
         data, row, col = ([] for i in range(3))
 
         for rate in rate_list:
             row.append(float(rate.userId))
             data.append(float(rate.rating))
-            col.append(int(rate.movieId))
-
-        self._movie_map, self._movie_map_origin, col = Mapper.to_numeric_integer(col)
+            col.append(float(rate.movieId))
 
         csr = csr_matrix((data, (row, col)), shape=(self._MAX_USER_ID, self._MAX_MOVIE_ID))
-        csr.eliminate_zeros()
-        csc = csr.tocsc()
+        _save_csr_matrix(csr=csr, field_type='rating')
+    
+    def build_movie_profile_csr(self):
+        metadata = list(Iterator(file_type=FileType.META))
 
-        print(csr.toarray()[1][self.get_id(31)])  # prints rating 2.5
-        np.savez('matrix-csr', data=csr.data, indices=csr.indices,
-                 indptr=csr.indptr, shape=csr.shape)
-        np.savez('matrix-csc', data=csc.data, indices=csc.indices,
-                 indptr=csc.indptr, shape=csc.shape)
+        row, col, data = _extract_director_info(metadata)
+        csr = csr_matrix((data, (row, col)), shape=(self._MAX_MOVIE_ID, self._MAX_DIRECTOR_ID))
+        _save_csr_matrix(csr=csr, field_type='director')
+    
+        row, col, data = _extract_genre_info(metadata)
+        csr = csr_matrix((data, (row, col)), shape=(self._MAX_MOVIE_ID, self._MAX_GENRE_ID))
+        _save_csr_matrix(csr=csr, field_type='genre')
+
+        row, col, data = _extract_cast_info(metadata)
+        csr = csr_matrix((data, (row, col)), shape=(self._MAX_MOVIE_ID, self._MAX_CAST_ID))
+        _save_csr_matrix(csr=csr, field_type='cast')
+
 
     def normalize(self, matrix='matrix-csr.npz'):
         npz = np.load(matrix)
@@ -68,6 +68,52 @@ class MatrixUtility(object):
                  indices=csc.indices, indptr=csc.indptr, shape=csc.shape)
 
 
+def _save_csr_matrix(field_type, csr):
+    csr_name = '{}{}'.format(field_type, '-csr')
+    csc_name = '{}{}'.format(field_type, '-csc')
+
+    csr.eliminate_zeros()
+    csc = csr.tocsc()
+
+    np.savez(csr_name, data=csr.data,
+            indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
+    np.savez(csc_name, data=csc.data,
+            indices=csc.indices, indptr=csc.indptr, shape=csc.shape)   
+
+def _extract_director_info(metadata):
+    data, row, col = ([] for i in range(3))
+    for movie in metadata:
+        if movie.director:
+            for director in movie.director.split('|'):
+                assert len(director.split('&')) == 2
+                row.append(int(movie.movieId))
+                col.append(int(director.split('&')[1]))
+                data.append(1)
+    return row, col, data
+
+def _extract_genre_info(metadata):
+    data, row, col = ([] for i in range(3))
+    for movie in metadata:
+        if movie.genres:
+            for genre in movie.genres.split('|'):
+                assert len(genre.split('&')) == 2
+                row.append(int(movie.movieId))
+                col.append(int(genre.split('&')[1]))
+                data.append(1)
+    return row, col, data    
+
+def _extract_cast_info(metadata):
+    data, row, col = ([] for i in range(3))
+    for movie in metadata:
+        if movie.cast:
+            for cast in movie.cast.split('|'):
+                assert len(cast.split('&')) == 2
+                row.append(int(movie.movieId))
+                col.append(int(cast.split('&')[1]))
+                data.append(1)
+    return row, col, data
+
+
 util = MatrixUtility()
-util.build_utility_csr()
-util.normalize()
+util.build_user_rating_csr()
+util.build_movie_profile_csr()

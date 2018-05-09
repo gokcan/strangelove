@@ -35,6 +35,10 @@ class FileType(object):
     AGG_RATINGS = 4
     METADATA = 5
     META = 6
+    CAST = 7
+    DIRECTOR = 8
+    GENRE = 9
+
 
     _VALUES_TO_NAMES = {
         0: 'MOVIE',
@@ -44,6 +48,9 @@ class FileType(object):
         4: 'AGG_RATINGS',
         5: 'METADATA',
         6: 'META',
+        7: 'CAST',
+        8: 'DIRECTOR',
+        9: 'GENRE',
     }
 
     _NAMES_TO_VALUES = {
@@ -54,6 +61,9 @@ class FileType(object):
         'AGG_RATINGS': 4,
         'METADATA': 5,
         'META': 6,
+        'CAST': 7,
+        'DIRECTOR': 8,
+        'GENRE': 9,
     }
 
     """ Immutable Representation of data collected from csv files. """
@@ -65,6 +75,10 @@ class FileType(object):
         4: namedtuple('AggRatings', ('movieId', 'vote_average', 'vote_count')),
         5: _META_DATA,
         6: _META_DATA,
+        7: namedtuple('Cast', ('name', 'id')),
+        8: namedtuple('Director', ('name', 'id')),
+        9: namedtuple('Genre', ('name', 'id')),
+
     }
 
     _VALUES_TO_PATH = {
@@ -75,6 +89,9 @@ class FileType(object):
         4: '{}/agg_movie_ratings.csv'.format(strangelove.STATIC_ROOT),
         5: '{}/metadata.csv'.format(strangelove.STATIC_ROOT),
         6: '{}/meta.csv'.format(strangelove.STATIC_ROOT),
+        7: '{}/cast.csv'.format(strangelove.STATIC_ROOT),
+        7: '{}/director.csv'.format(strangelove.STATIC_ROOT),
+        7: '{}/genre.csv'.format(strangelove.STATIC_ROOT),
     }
 
 
