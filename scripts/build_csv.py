@@ -20,12 +20,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--file', '-f', type=str, required=True)
     parser.add_argument('--path', '-p', type=str, default=None)
+    parser.add_argument('--size', '-s', type=str, default='100K')
     args = parser.parse_args()
 
     if args.path is None:
         args.path = os.path.abspath(
             os.path.join('../strangelove',
-                         'strangelove/dataset/movielens/100k/out'))
+                         'strangelove/dataset/movielens/{}/out'.format(args.size)))
 
     filepath = '{}/{}'.format(args.path, args.file)
 

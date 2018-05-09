@@ -25,6 +25,8 @@ env/
 
 # csv out
 strangelove/dataset/movielens/100k/out
+strangelove/dataset/movielens/1M
+
 
 # npz
 
