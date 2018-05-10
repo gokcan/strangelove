@@ -33,7 +33,7 @@ def main():
             directors.update(movie.director.split('|'))
 
         if movie.cast:
-            cast.update(movie.cast.split('|'))
+            cast.update(movie.cast.split('|')[:3])
         
         if movie.genres:
             if movie.genres == '(no genres listed)':
@@ -70,7 +70,7 @@ def main():
         writer.write({
             'name': key,
             'id': index,
-        })    
+        })
 
 
     filepath = '{}/{}'.format(path, 'meta.csv')
@@ -80,7 +80,7 @@ def main():
         if director:
             movie_director = ['{}&{}'.format(el, director_dict[el]) for el in director.split('|')]
         if cast:
-            movie_cast = ['{}&{}'.format(el, cast_dict[el]) for el in cast.split('|')]
+            movie_cast = ['{}&{}'.format(el, cast_dict[el]) for el in cast.split('|')[:3]]
         if genres:
             movie_genre = ['{}&{}'.format(el, genre_dict[el]) for el in genres.split('|')] \
                         if genres != '(no genres listed)' else []
