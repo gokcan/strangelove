@@ -5,7 +5,6 @@ from scipy.sparse import csr_matrix, csc_matrix
 from strangelove.process.reader import Iterator, FileType
 from strangelove import STATIC_ROOT
 
-from strangelove.process.mapper import Mapper
 from os.path import exists
 
 
@@ -19,6 +18,7 @@ class MatrixUtility(object):
     _MAX_DIRECTOR_ID = 3978
     _MAX_CAST_ID = 16838
     _MAX_GENRE_ID = 20
+    _MAX_KEYWORD_ID = 12295
 
     def __init__(self):
         pass
@@ -50,8 +50,12 @@ class MatrixUtility(object):
         csr = csr_matrix((data, (row, col)), shape=(self._MAX_MOVIE_ID, self._MAX_CAST_ID))
         _save_csr_matrix(csr=csr, field_type='cast')
 
+        row, col, data = _extract_keyword_info(metadata)
+        csr = csr_matrix((data, (row, col)), shape=(self._MAX_MOVIE_ID, self._MAX_KEYWORD_ID))
+        _save_csr_matrix(csr=csr, field_type='keyword')
 
-    def normalize(self, matrix='matrix-csr.npz'):
+
+    def normalize(self, matrix='rating-csr.npz'):
         npz = np.load(matrix)
         csr = csr_matrix((npz["data"], npz["indices"],
                                   npz["indptr"]), shape=npz["shape"])
@@ -65,9 +69,9 @@ class MatrixUtility(object):
 
         csr.eliminate_zeros()
         csc = csr.tocsc()
-        np.savez("norm-matrix-csr", data=csr.data,
+        np.savez("normalised-rating-csr", data=csr.data,
                  indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
-        np.savez('norm-matrix-csc', data=csc.data,
+        np.savez('normalised-rating-csc', data=csc.data,
                  indices=csc.indices, indptr=csc.indptr, shape=csc.shape)
     
 
@@ -144,6 +148,18 @@ def _extract_cast_info(metadata):
                 data.append(1)
     return row, col, data
 
+def _extract_keyword_info(metadata):
+    data, row, col = ([] for i in range(3))
+    for movie in metadata:
+        if movie.keywords:
+            for keyword in movie.keywords.split('|'):
+                row.append(int(movie.movieId))
+                col.append(int(keyword.split('&')[-1]))
+                data.append(1)
+    return row, col, data
+
 
 util = MatrixUtility()
-
+util.build_user_rating_csr()
+util.build_movie_profile_csr()
+util.normalize()

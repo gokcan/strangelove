@@ -1,10 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from nltk.stem.snowball import SnowballStemmer
-from nltk.stem.wordnet import WordNetLemmatizer
-from nltk.corpus import wordnet
-
 from strangelove.engine import base
 from strangelove.process.util import MatrixUtility
 from strangelove import STATIC_ROOT
@@ -45,18 +41,19 @@ class ContentBasedRecommender(base.Recommender):
         cast_csr = self.utility.load_csr_matrix(field_name='cast')
         director_csr = self.utility.load_csr_matrix(field_name='director')
         genre_csr = self.utility.load_csr_matrix(field_name='genre')
+        keyword_csr = self.utility.load_csr_matrix(field_name='keyword')
 
-        cast, director, genre = cast_csr[item_id], director_csr[item_id], genre_csr[item_id]
+        cast, director, genre, keywords= cast_csr[item_id], director_csr[item_id], genre_csr[item_id], keyword_csr[item_id]
 
         cm_cast = self._contentwise_similar(cast.indices, cast_csr)
         cm_director = self._contentwise_similar(director.indices, director_csr)
         cm_genre = self._contentwise_similar(genre.indices, genre_csr)
-        # cm_keywords = self._contentwise_similar(keywords.indices, keywords_csr)
+        cm_keywords = self._contentwise_similar(keywords.indices, keyword_csr)
 
         similar_items = []
-        for movie_id, similarity in enumerate(zip(cm_cast, cm_director, cm_genre), 1):
-            cast, director, genre = similarity
-            sim_score = cast*0.2 + director*0.4 + genre*0.4
+        for movie_id, similarity in enumerate(zip(cm_cast, cm_director, cm_genre, cm_keywords), 1):
+            cast, director, genre, keyword = similarity
+            sim_score = cast*0.2 + director*0.3 + genre*0.2 + keyword*0.3
             similar_items.append((movie_id, self.movie_name(movie_id), 'confidence: {}'.format(sim_score)))
 
         similar_items.sort(key=lambda v: v[2], reverse=True)
@@ -79,4 +76,4 @@ class ContentBasedRecommender(base.Recommender):
 
 
 cb = ContentBasedRecommender()
-print(cb.similar_items(1036, 3)) # 1036, Die Hard (1988)
+print(cb.similar_items(55232, 3)) # 1036, Die Hard (1988)
