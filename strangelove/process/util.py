@@ -5,6 +5,7 @@ from scipy.sparse import csr_matrix, csc_matrix
 from strangelove.process.reader import Iterator, FileType
 from strangelove import STATIC_ROOT
 from strangelove.process.mapper import Mapper
+from os.path import exists
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,22 @@ class MatrixUtility(object):
                  indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
         np.savez('norm-matrix-csc', data=csc.data,
                  indices=csc.indices, indptr=csc.indptr, shape=csc.shape)
+    
+
+    def build_user_tag_csr(self):
+        from difflib import SequenceMatcher
+
+        tag_list = list(Iterator(file_type=FileType.TAG))
+        keyword_list = "".join(list(tag.tag for tag in tag_list))
+        similarities, row, col = (list() for i in range(3))
+        for tag_dict in tag_list:
+            similarity_ratio =  SequenceMatcher(None, keyword_list, tag_dict.tag).ratio()
+            similarities.append(similarity_ratio)
+            row.append(float(tag_dict.userId))
+            col.append(float(tag_dict.movieId))
+        csr = csr_matrix((similarities, (row, col)), shape=(self._MAX_USER_ID, self._MAX_MOVIE_ID))
+        _save_csr_matrix(csr=csr, field_type='tag')
+
 
 
 def _save_csr_matrix(field_type, csr):
@@ -115,5 +132,4 @@ def _extract_cast_info(metadata):
 
 
 util = MatrixUtility()
-util.build_user_rating_csr()
-util.build_movie_profile_csr()
+
