@@ -84,6 +84,7 @@ class MatrixUtility(object):
         _save_csr_matrix(csr=csr, field_type='tag')
 
 
+
 def _save_csr_matrix(field_type, csr):
     csr_name = '{}{}'.format(field_type, '-csr')
     csc_name = '{}{}'.format(field_type, '-csc')
@@ -94,7 +95,7 @@ def _save_csr_matrix(field_type, csr):
     np.savez(csr_name, data=csr.data,
             indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
     np.savez(csc_name, data=csc.data,
-            indices=csc.indices, indptr=csc.indptr, shape=csc.shape)
+            indices=csc.indices, indptr=csc.indptr, shape=csc.shape)   
 
 def _extract_director_info(metadata):
     data, row, col = ([] for i in range(3))
@@ -131,3 +132,4 @@ def _extract_cast_info(metadata):
 
 
 util = MatrixUtility()
+
