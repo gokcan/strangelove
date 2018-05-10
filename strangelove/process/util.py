@@ -4,8 +4,10 @@ import pandas as pd
 from scipy.sparse import csr_matrix, csc_matrix
 from strangelove.process.reader import Iterator, FileType
 from strangelove import STATIC_ROOT
+
 from strangelove.process.mapper import Mapper
 from os.path import exists
+
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +86,18 @@ class MatrixUtility(object):
         _save_csr_matrix(csr=csr, field_type='tag')
 
 
+    def jaccard_similarity_score(self, x, y):
+        intersection_cardl = len(set(x).intersection(set(y)))
+        union_cardl = len(set(x).union(set(y)))
+        assert union_cardl != 0
+        return intersection_cardl / float(union_cardl)
+
+    def load_csr_matrix(self, field_name):
+        csr_name = '{}{}'.format(field_name, '-csr.npz')
+        csr = np.load(csr_name)
+        csr_k = csr_matrix((csr["data"], csr["indices"], csr["indptr"]), shape=csr["shape"])
+        return csr_k
+
 
 def _save_csr_matrix(field_type, csr):
     csr_name = '{}{}'.format(field_type, '-csr')
@@ -95,7 +109,7 @@ def _save_csr_matrix(field_type, csr):
     np.savez(csr_name, data=csr.data,
             indices=csr.indices, indptr=csr.indptr, shape=csr.shape)
     np.savez(csc_name, data=csc.data,
-            indices=csc.indices, indptr=csc.indptr, shape=csc.shape)   
+            indices=csc.indices, indptr=csc.indptr, shape=csc.shape) 
 
 def _extract_director_info(metadata):
     data, row, col = ([] for i in range(3))
