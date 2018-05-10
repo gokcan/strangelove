@@ -21,4 +21,4 @@ class CosineSimilarity(similarity_base.SimilarityBase):
 
         from sklearn.metrics.pairwise import cosine_similarity
         # column-based cosine similarity
-        return cosine_similarity(self.data.transpose())
+        return cosine_similarity(self.data.transpose(), dense_output=False)
